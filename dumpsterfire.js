@@ -48,7 +48,7 @@ for(let i=0;i<lines.length;i++){
         case "write":
         page=parseInt(tokens[1]);
         if(Number.isNaN(page)){console.error("error: notebook page must be a number, line "+i);exit(1)};
-        if(usedPages.includes(page)){console.error("error: page doesnt exist, line "+i);exit(1)};
+        if(usedPages.includes(page)){console.error("error: page does not exist anymore, line "+i);exit(1)};
         
         if(notebookPages[page]==null){notebookPages[page]=[]};
         notebookPages[page].push(tokens.slice(2).join(" "))
