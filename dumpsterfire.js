@@ -1,23 +1,25 @@
 const fs=require("fs");
 const { exit } = require("process");
+const { arrayBuffer } = require("stream/consumers");
 
 var args = process.argv.slice(2);
 
 if(args.length==0){console.error("usage: [inputfile] [outputfile]");exit(1)};
 
 let input=fs.readFileSync(args[0]).toString();
-
+let optimize = args[2]=="--optimize";
 let lines=input.trim().split("\n");
 
 let outputString="";
 let outputLines=[];
 
+if(!optimize){console.log("warning: running in unoptimized mode. consider using --optimize")};
 
 let containerOpen=false;
 let containerName="";
 let burnt=false;
 let closedContainers=[];
-let currentText="";
+let currentText=optimize?"":[];
 let usedPages=[];
 let notebookPages=[];
 
@@ -35,7 +37,7 @@ for(let i=0;i<lines.length;i++){
         if(closedContainers.includes(tokens[1])){console.error("error: container already burnt, line "+i);exit(1)};
         containerName=tokens[1];
         burnt=false;
-        outputLines.push("set container "+tokens[1]);
+        if(!optimize){outputLines.push("set container "+tokens[1]);}
         //find container
         break;
         case "open":
@@ -62,7 +64,7 @@ for(let i=0;i<lines.length;i++){
         if(!containerOpen){console.error("error: cannot toss into a closed container, line "+i);exit(1)};
         if(burnt){console.error("error: cannot toss into burnt container, line "+i);exit(1)};
         usedPages.push(page);
-        currentText=notebookPages[page].join(" ");
+        if(optimize){currentText+=notebookPages[page].join(" ")+"\\n";}else{notebookPages[page].forEach(p=>{currentText.push(p)})};
         //toss page
         break;
         case "burn":
@@ -71,8 +73,8 @@ for(let i=0;i<lines.length;i++){
         if(burnt){console.error("error: container already burnt, line "+i);exit(1)};
         burnt=true;
         //print thing
-        outputLines.push(`print "${currentText}"`);
-        currentText="";
+        if(optimize){outputLines.push(`print "${currentText}"`);}else{currentText.forEach(t=>{outputLines.push(`print "${t}\\n"`)})}
+        currentText=optimize?"":[];
         break;
         case "close":
         if(containerName!=tokens[1]){console.log("error: cannot close this container, line "+i);exit(1)};
@@ -82,7 +84,7 @@ for(let i=0;i<lines.length;i++){
         closedContainers.push(containerName);
         //printflush
         
-        outputLines.push("printflush "+containerName);
+        outputLines.push("printflush "+(optimize?containerName:"container"));
         break;
     }
 }
