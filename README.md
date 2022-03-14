@@ -6,7 +6,11 @@ allows you to toss pages of your notebook into dumpsters and set them on fire.
 
 ## Usage:
 
-```node dumpsterfire.js inputfile.txt outputfile.txt```
+```node dumpsterfire.js examples/example1.dmf outputfile.txt```
+
+alternatively:
+
+```node dumpsterfire.js examples/example1.dmf outputfile.txt --optimize```
 
 ## The language:
 
