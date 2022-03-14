@@ -81,10 +81,13 @@ for(let i=0;i<lines.length;i++){
         containerOpen=false;
         closedContainers.push(containerName);
         //printflush
+        
         outputLines.push("printflush "+containerName);
         break;
     }
 }
+if(!burnt){console.error("error: not all containers are burnt");exit(1)}; //check if all containers are closed
+if(containerOpen){console.error("error: not all containers are closed (unexpected end of input)");exit(1)}; //check if all containers are closed
 console.log(outputLines.join("\n"));
 fs.writeFileSync(args[1],outputLines.join("\n"));
 exit(0);
